@@ -1,0 +1,15 @@
+1) npm init
+2) npm i express cors dotenv mongodb mongoose
+3) npm i @types/cors @types/express @types/node ts-node typescript nodemon --save-dev
+4) npx tailwindcss init -p
+5) npm install bcryptjs jsonwebtoken
+6) npm install @types/bcryptjs @types/jsonwebtoken
+7) npm install express-validator
+8) npm install cookie-parser
+9) npm install --save-dev @types/cookie-parser
+10) npm install cross-env
+11) npm tsc --init
+12) npm install cloudinary
+13) npm install multer
+14) npm install --save-dev @types/multer
+15) npm install stripe

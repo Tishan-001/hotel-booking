@@ -1,0 +1,11 @@
+1) npm create vite@latest
+2) npm install
+3) npm install -D tailwindcss postcss autoprefixer
+4) npm install react-hook-form
+5) npm install react-query
+6) npm install react-datepicker
+7) npm install --save @stripe/react-stripe-js @stripe/stripe-js
+
+
+read:
+1) typescript + SWC
