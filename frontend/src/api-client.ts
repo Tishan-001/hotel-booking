@@ -1,11 +1,12 @@
 import { RegisterFormData } from "./pages/Register";
 import { SignInFormData } from "./pages/SignIn";
 import {
+    BookingType,
     HotelSearchResponse,
     HotelType,
     PaymentIntentResponse,
     UserType,
-} from "../../backend/src/shared/types";
+} from "./types/types";
 import { BookingFormData } from "./forms/BookingForm/BookingForm";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
@@ -244,7 +245,7 @@ export const createRoomBooking = async (formData: BookingFormData) => {
     }
 };
 
-export const fetchMyBookings = async (): Promise<HotelType[]> => {
+export const fetchMyBookings = async (): Promise<BookingType[]> => {
     const response = await fetch(`${API_BASE_URL}/api/my-bookings`, {
         credentials: "include",
     });

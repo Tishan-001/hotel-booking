@@ -1,8 +1,14 @@
+/// <reference path="../types/express.d.ts" />
+
 import { Request, Response } from "express";
 import { check, validationResult } from "express-validator";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user";
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 export const login = [
     check("email", "Email Is Required").isEmail(),

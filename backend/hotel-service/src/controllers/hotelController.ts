@@ -1,3 +1,5 @@
+/// <reference path="../types/express.d.ts" />
+
 import { Request, Response } from "express";
 import { body, validationResult } from "express-validator";
 import { Hotel } from "../models/hotel";
@@ -31,7 +33,8 @@ export const createHotel = [
 
             newHotel.imageUrls = imageURLs;
             newHotel.lastUpdated = new Date();
-            newHotel.userId = req.userId;
+
+            newHotel.userId = req.headers["x-user-id"] as string;
 
             const hotel = new Hotel(newHotel);
             await hotel.save();
@@ -46,9 +49,11 @@ export const createHotel = [
 
 export const getMyHotels = async (req: Request, res: Response) => {
     try {
-        const hotels = await Hotel.find({ userId: req.userId });
+        const userId = req.headers["x-user-id"] as string;
+        const hotels = await Hotel.find({ userId: userId });
         res.json(hotels);
-    } catch {
+    } catch (err) {
+        console.log(err);
         res.status(500).json({ message: "Error Fetching Hotels" });
     }
 };
@@ -56,7 +61,8 @@ export const getMyHotels = async (req: Request, res: Response) => {
 export const getMyHotel = async (req: Request, res: Response) => {
     const id = req.params.id;
     try {
-        const hotel = await Hotel.findOne({ _id: id, userId: req.userId });
+        const userId = req.headers["x-user-id"] as string;
+        const hotel = await Hotel.findOne({ _id: id, userId: userId });
         if (!hotel)
             return res.status(404).send({ message: "Hotel Not Found!" });
         res.json(hotel);
@@ -70,8 +76,9 @@ export const updateMyHotel = async (req: Request, res: Response) => {
         const updatedHotel = req.body;
         updatedHotel.lastUpdated = new Date();
 
+        const userId = req.headers["x-user-id"] as string;
         const hotel = await Hotel.findOneAndUpdate(
-            { _id: req.params.hotelId, userId: req.userId },
+            { _id: req.params.hotelId, userId: userId },
             updatedHotel,
             { new: true }
         );

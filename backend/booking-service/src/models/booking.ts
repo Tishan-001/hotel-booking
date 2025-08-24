@@ -12,6 +12,7 @@ const bookingSchema = new mongoose.Schema({
     checkIn: { type: Date, required: true },
     checkOut: { type: Date, required: true },
     totalCost: { type: Number, required: true },
+    paymentIntentId: { type: String, required: true },
 });
 
 export const Booking = mongoose.model<BookingType>("Booking", bookingSchema);

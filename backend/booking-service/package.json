@@ -12,25 +12,26 @@
         "test:watch": "jest --watch"
     },
     "dependencies": {
-        "express": "^4.18.3",
-        "mongoose": "^8.2.1",
-        "mongodb": "^6.4.0",
-        "stripe": "^14.24.0",
         "axios": "^1.5.0",
         "cors": "^2.8.5",
-        "shared-types": "^1.0.0"
+        "dotenv": "^17.2.1",
+        "express": "^4.18.3",
+        "mongodb": "^6.4.0",
+        "mongoose": "^8.2.1",
+        "shared-types": "^1.0.0",
+        "stripe": "^14.24.0"
     },
     "devDependencies": {
         "@types/express": "^4.17.21",
-        "@types/node": "^20.11.25",
         "@types/jest": "^29.5.5",
+        "@types/node": "^20.11.25",
         "@types/supertest": "^2.0.12",
-        "typescript": "^5.4.2",
-        "nodemon": "^3.0.1",
-        "ts-node": "^10.9.1",
         "jest": "^29.6.4",
+        "nodemon": "^3.0.1",
+        "supertest": "^6.3.3",
         "ts-jest": "^29.1.1",
-        "supertest": "^6.3.3"
+        "ts-node": "^10.9.1",
+        "typescript": "^5.4.2"
     },
     "keywords": [
         "booking",
@@ -43,4 +44,3 @@
     "author": "Tishan",
     "license": "MIT"
 }
-

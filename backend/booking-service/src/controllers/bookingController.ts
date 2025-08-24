@@ -1,21 +1,24 @@
+/// <reference path="../types/express.d.ts" />
+
 import { Request, Response } from "express";
 import Stripe from "stripe";
 import { Booking } from "../models/booking";
-import { createBookingSaga } from "../sagas/createBookingSaga";
 import axios, { AxiosError } from "axios";
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const stripe = new Stripe(process.env.STRIPE_API_KEY as string);
-const HOTEL_SERVICE_URL =
-    process.env.HOTEL_SERVICE_URL || "http://hotel-service:7003";
+const BASE_URL =
+    process.env.BASE_URL || "http://localhost:7000";
 
 export const createPaymentIntent = async (req: Request, res: Response) => {
     try {
         const { numberOfNights } = req.body;
-        const hotelId = req.params.hotelId;
+        const hotelId = req.headers["x-hotel-id"] as string;
 
-        const response = await axios.get(
-            `${HOTEL_SERVICE_URL}/hotels/${hotelId}`
-        );
+        const response = await axios.get(`${BASE_URL}/api/hotels/${hotelId}`);
         const hotel = response.data;
 
         if (!hotel) {
@@ -24,12 +27,14 @@ export const createPaymentIntent = async (req: Request, res: Response) => {
 
         const totalCost = hotel.pricePerNight * numberOfNights;
 
+        const userId = req.headers["x-user-id"] as string;
+
         const paymentIntent = await stripe.paymentIntents.create({
             amount: Math.round(totalCost * 100), // Convert to cents
-            currency: "gbp",
+            currency: "lkr",
             metadata: {
                 hotelId,
-                userId: req.userId,
+                userId: userId!,
             },
         });
 
@@ -62,7 +67,23 @@ export const createPaymentIntent = async (req: Request, res: Response) => {
 
 export const createBooking = async (req: Request, res: Response) => {
     try {
-        const booking = await createBookingSaga(req.body);
+        const userId = req.headers["x-user-id"] as string;
+        const hotelId = req.headers["x-hotel-id"] as string;
+        
+        const { firstName, lastName, email, adultCount, childCount, checkIn, checkOut, paymentIntentId, totalCost } = req.body;
+        const booking = await Booking.create({
+            userId,
+            hotelId,
+            firstName,
+            lastName,
+            email,
+            adultCount,
+            childCount,
+            checkIn,
+            checkOut,
+            paymentIntentId,
+            totalCost,
+        });
         res.status(201).json(booking);
     } catch (error) {
         console.log(error);
@@ -72,18 +93,24 @@ export const createBooking = async (req: Request, res: Response) => {
 
 export const getUserBookings = async (req: Request, res: Response) => {
     try {
-        const bookings = await Booking.find({ userId: req.userId });
-        res.status(200).json(bookings);
+        const userId = req.headers["x-user-id"] as string;
+
+        const bookings = await Booking.find({ userId });
+
+        // Fetch hotel data for each booking
+        const bookingsWithHotels = await Promise.all(
+            bookings.map(async (b) => {
+                const hotelRes = await axios.get(`${BASE_URL}/api/hotels/${b.hotelId}`);
+                return {
+                    ...b.toObject(),
+                    hotel: hotelRes.data,
+                };
+            })
+        );
+
+        res.status(200).json(bookingsWithHotels);
     } catch (err) {
         console.log(err);
         res.status(500).json({ message: "Unable To Fetch Bookings" });
     }
 };
-
-
-
-
-
-
-
-
