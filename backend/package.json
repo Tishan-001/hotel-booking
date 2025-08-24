@@ -1,41 +1,65 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "./src/index.ts",
-  "scripts": {
-    "dev": "nodemon",
-    "build": "npm install && npx tsc",
-    "start": "node ./dist/index.js",
-    "e2e": "cross-env DOTENV_CONFIG_PATH=.env.e2e nodemon"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/jsonwebtoken": "^9.0.6",
-    "bcryptjs": "^2.4.3",
-    "cloudinary": "^2.0.3",
-    "cookie-parser": "^1.4.6",
-    "cors": "^2.8.5",
-    "cross-env": "^7.0.3",
-    "dotenv": "^16.4.5",
-    "express": "^4.18.3",
-    "express-validator": "^7.0.1",
-    "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.4.0",
-    "mongoose": "^8.2.1",
-    "multer": "^1.4.5-lts.1",
-    "stripe": "^14.24.0"
-  },
-  "devDependencies": {
-    "@types/cookie-parser": "^1.4.7",
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "@types/multer": "^1.4.11",
-    "@types/node": "^20.11.25",
-    "nodemon": "^3.1.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.4.2"
-  }
+    "name": "hotel-booking-microservices",
+    "version": "1.0.0",
+    "description": "Hotel booking system with microservices architecture",
+    "private": true,
+    "workspaces": [
+        "api-gateway",
+        "auth-service",
+        "user-service",
+        "hotel-service",
+        "booking-service",
+        "shared-types"
+    ],
+    "scripts": {
+        "build": "npm run build:all",
+        "build:all": "npm run build:types && npm run build:services",
+        "build:types": "npm run build --workspace=shared-types",
+        "build:services": "npm run build --workspaces --if-present",
+        "dev": "concurrently \"npm:dev:*\"",
+        "dev:gateway": "npm run dev --workspace=api-gateway",
+        "dev:auth": "npm run dev --workspace=auth-service",
+        "dev:user": "npm run dev --workspace=user-service",
+        "dev:hotel": "npm run dev --workspace=hotel-service",
+        "dev:booking": "npm run dev --workspace=booking-service",
+        "start": "concurrently \"npm:start:*\"",
+        "start:gateway": "npm start --workspace=api-gateway",
+        "start:auth": "npm start --workspace=auth-service",
+        "start:user": "npm start --workspace=user-service",
+        "start:hotel": "npm start --workspace=hotel-service",
+        "start:booking": "npm start --workspace=booking-service",
+        "test": "npm test --workspaces --if-present",
+        "test:gateway": "npm test --workspace=api-gateway",
+        "test:auth": "npm test --workspace=auth-service",
+        "test:user": "npm test --workspace=user-service",
+        "test:hotel": "npm test --workspace=hotel-service",
+        "test:booking": "npm test --workspace=booking-service",
+        "lint": "npm run lint --workspaces --if-present",
+        "clean": "rimraf */dist */node_modules .tsbuildinfo",
+        "docker:build": "docker-compose build",
+        "docker:up": "docker-compose up",
+        "docker:down": "docker-compose down",
+        "docker:dev": "docker-compose -f docker-compose.dev.yml up --build",
+        "install:all": "npm install && npm run install:workspaces",
+        "install:workspaces": "npm install --workspaces --if-present"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.0",
+        "rimraf": "^5.0.1",
+        "typescript": "^5.1.6"
+    },
+    "engines": {
+        "node": ">=18.0.0",
+        "npm": ">=8.0.0"
+    },
+    "keywords": [
+        "microservices",
+        "typescript",
+        "nodejs",
+        "hotel-booking",
+        "mongodb",
+        "docker"
+    ],
+    "author": "Tishan",
+    "license": "MIT"
 }
