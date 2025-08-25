@@ -6,16 +6,15 @@ const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || "http://localhost:7001"
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://localhost:7002";
 const HOTEL_SERVICE_URL = process.env.HOTEL_SERVICE_URL || "http://localhost:7003";
 const BOOKING_SERVICE_URL = process.env.BOOKING_SERVICE_URL || "http://localhost:7004";
+const NOTIFICATIONS_SERVICE_URL = process.env.NOTIFICATIONS_SERVICE_URL || "http://localhost:7005";
 
 const router = express.Router();
 
-// Debug middleware
 router.use((req, res, next) => {
     console.log(`🔄 API Gateway: ${req.method} ${req.originalUrl}`);
     next();
 });
 
-// Health check endpoint
 router.get('/health', (req, res) => {
     res.json({ 
         status: 'OK', 
@@ -186,5 +185,23 @@ router.use(
         }
     })
 );
+
+// Notifications routes
+router.use(
+    "/api/notifications",
+    createProxyMiddleware({
+        target: NOTIFICATIONS_SERVICE_URL,
+        changeOrigin: true,
+        pathRewrite: { "^/api/notifications": "/notifications" },
+        onProxyReq: (proxyReq, req, res) => {
+            console.log(`📧 Proxying to Notifications Service: ${req.method} ${req.originalUrl}`);
+        },
+        onError: (err, req, res) => {
+            console.error('Notifications Service Error:', err.message);
+            res.status(503).json({ error: 'Notifications service unavailable' });
+        }
+    })
+);
+
 
 export default router;

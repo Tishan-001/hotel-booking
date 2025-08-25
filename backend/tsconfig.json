@@ -21,6 +21,7 @@
         { "path": "./user-service" },
         { "path": "./hotel-service" },
         { "path": "./booking-service" },
+        { "path": "./notifications-service" },
         { "path": "./shared-types" }
     ],
     "files": [],

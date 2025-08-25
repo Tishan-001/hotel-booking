@@ -1,0 +1,166 @@
+version: '3.8'
+
+volumes:
+  mongodb_data:
+  redis_data:
+  rabbitmq_data:
+
+networks:
+  hotel-booking-network:
+    driver: bridge
+
+services:
+  # MongoDB Databases
+  mongodb:
+    image: mongo:7.0
+    container_name: hotel-booking-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    networks:
+      - hotel-booking-network
+    healthcheck: 
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # RabbitMQ for Message Queuing
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: hotel-booking-rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"   # AMQP protocol port
+      - "15672:15672" # Management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password123
+      RABBITMQ_DEFAULT_VHOST: /hotel_booking
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - hotel-booking-network
+
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./auth-service 
+      dockerfile: Dockerfile 
+    container_name: hotel-booking-auth
+    restart: always
+    expose:
+      - "7001"
+    environment:
+      - NODE_ENV=production
+      - AUTH_SERVICE_PORT=7001
+      - JWT_SECRET_KEY=eX1lLQawDk20uGER5mlOplTFBNVaB8hq
+      - FRONTEND_URL=http://localhost:3000
+    networks:
+      - hotel-booking-network
+
+  # User Service
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: hotel-booking-user
+    restart: always
+    expose:
+      - "7002"
+    environment:
+      - NODE_ENV=production
+      - USER_SERVICE_PORT=7002
+      - MONGODB_CONNECTION_STRING_USERS=mongodb://admin:password123@mongodb:27017/hotel-booking-users?authSource=admin
+      - JWT_SECRET_KEY=eX1lLQawDk20uGER5mlOplTFBNVaB8hq
+      - FRONTEND_URL=http://localhost:3000
+    networks:
+      - hotel-booking-network
+    depends_on:
+      mongodb:
+        condition: service_healthy 
+
+  # Hotel Service
+  hotel-service:
+    build:
+      context: ./hotel-service
+      dockerfile: Dockerfile
+    container_name: hotel-booking-hotel
+    restart: always
+    expose:
+      - "7003"
+    environment:
+      - NODE_ENV=production
+      - HOTEL_SERVICE_PORT=7003
+      - MONGODB_CONNECTION_STRING_HOTELS=mongodb://admin:password123@mongodb:27017/hotel-booking-hotels?authSource=admin
+      - CLOUDINARY_CLOUD_NAME=dyie6dtcm
+      - CLOUDINARY_API_KEY=547513523316435
+      - CLOUDINARY_API_SECRET=TIt71jwwoUULbiak_OSB4C-n8Hw
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - hotel-booking-network
+
+  # Booking Service
+  booking-service:
+    build:
+      context: ./booking-service
+      dockerfile: Dockerfile
+    container_name: hotel-booking-booking
+    restart: always
+    expose:
+      - "7004"
+    environment:
+      - NODE_ENV=production
+      - BOOKING_SERVICE_PORT=7004
+      - MONGODB_CONNECTION_STRING_BOOKINGS=mongodb://admin:password123@mongodb:27017/hotel-booking-bookings?authSource=admin
+      - STRIPE_API_KEY=
+      - BASE_URL=http://api-gateway:7000
+      - RABBITMQ_URL=amqp://admin:password123@rabbitmq:5672/hotel_booking
+    networks:
+      - hotel-booking-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: hotel-booking-gateway
+    restart: always
+    ports:
+      - "7000:7000"
+    environment:
+      - NODE_ENV=production
+      - API_GATEWAY_PORT=7000
+      - AUTH_SERVICE_URL=http://auth-service:7001
+      - USER_SERVICE_URL=http://user-service:7002
+      - HOTEL_SERVICE_URL=http://hotel-service:7003
+      - BOOKING_SERVICE_URL=http://booking-service:7004
+      - FRONTEND_URL=http://localhost:3000
+      - JWT_SECRET_KEY=eX1lLQawDk20uGER5mlOplTFBNVaB8hq
+    networks:
+      - hotel-booking-network
+    depends_on:
+      - auth-service
+      - user-service
+      - hotel-service
+      - booking-service

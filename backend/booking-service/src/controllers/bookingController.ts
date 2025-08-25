@@ -84,6 +84,19 @@ export const createBooking = async (req: Request, res: Response) => {
             paymentIntentId,
             totalCost,
         });
+
+        // Send booking confirmation email
+        try {
+            await axios.post(`${BASE_URL}/api/notifications/booking-confirmation`, {
+                booking: booking.toObject(),
+                userEmail: email
+            });
+            console.log(`Booking confirmation email sent for booking ${booking._id}`);
+        } catch (emailError) {
+            // Don't fail the booking if email fails
+            console.error(`Failed to send booking confirmation email:`, emailError);
+        }
+
         res.status(201).json(booking);
     } catch (error) {
         console.log(error);

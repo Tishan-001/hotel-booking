@@ -9,6 +9,7 @@
         "user-service",
         "hotel-service",
         "booking-service",
+        "notifications-service",
         "shared-types"
     ],
     "scripts": {
@@ -22,18 +23,21 @@
         "dev:user": "npm run dev --workspace=user-service",
         "dev:hotel": "npm run dev --workspace=hotel-service",
         "dev:booking": "npm run dev --workspace=booking-service",
+        "dev:notifications": "npm run dev --workspace=notifications-service",
         "start": "concurrently \"npm:start:*\"",
         "start:gateway": "npm start --workspace=api-gateway",
         "start:auth": "npm start --workspace=auth-service",
         "start:user": "npm start --workspace=user-service",
         "start:hotel": "npm start --workspace=hotel-service",
         "start:booking": "npm start --workspace=booking-service",
+        "start:notifications": "npm start --workspace=notifications-service",
         "test": "npm test --workspaces --if-present",
         "test:gateway": "npm test --workspace=api-gateway",
         "test:auth": "npm test --workspace=auth-service",
         "test:user": "npm test --workspace=user-service",
         "test:hotel": "npm test --workspace=hotel-service",
         "test:booking": "npm test --workspace=booking-service",
+        "test:notifications": "npm test --workspace=notifications-service",
         "lint": "npm run lint --workspaces --if-present",
         "clean": "rimraf */dist */node_modules .tsbuildinfo",
         "docker:build": "docker-compose build",
@@ -58,7 +62,9 @@
         "nodejs",
         "hotel-booking",
         "mongodb",
-        "docker"
+        "docker",
+        "notifications",
+        "email"
     ],
     "author": "Tishan",
     "license": "MIT"

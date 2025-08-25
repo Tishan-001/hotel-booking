@@ -13,3 +13,4 @@
 13) npm install multer
 14) npm install --save-dev @types/multer
 15) npm install stripe
+16) npm install nodemailer
