@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import notificationRoutes from "./routes/notificationRoutes";
+import { NotificationsMessagingService } from "./services/messagingService";
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -20,5 +21,9 @@ app.get('/health', (req, res) => {
         timestamp: new Date().toISOString()
     });
 });
+
+// Initialize messaging service
+const messagingService = new NotificationsMessagingService();
+messagingService.initialize().catch(console.error);
 
 export default app;

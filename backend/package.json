@@ -45,7 +45,8 @@
         "docker:down": "docker-compose down",
         "docker:dev": "docker-compose -f docker-compose.dev.yml up --build",
         "install:all": "npm install && npm run install:workspaces",
-        "install:workspaces": "npm install --workspaces --if-present"
+        "install:workspaces": "npm install --workspaces --if-present",
+        "setup:messaging": "npm install --workspace=shared-types && npm install --workspace=booking-service && npm install --workspace=notifications-service"
     },
     "devDependencies": {
         "concurrently": "^8.2.0",
@@ -64,7 +65,9 @@
         "mongodb",
         "docker",
         "notifications",
-        "email"
+        "email",
+        "rabbitmq",
+        "messaging"
     ],
     "author": "Tishan",
     "license": "MIT"

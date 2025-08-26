@@ -16,8 +16,9 @@
         "composite": true,
         "incremental": true,
         "tsBuildInfoFile": "./dist/.tsbuildinfo",
+        "allowSyntheticDefaultImports": true,
         "types": ["node", "amqplib"]
     },
-    "include": ["src/**/*", "src/messaging"],
+    "include": ["src/**/*"],
     "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }

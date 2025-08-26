@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import Stripe from "stripe";
 import { Booking } from "../models/booking";
 import axios, { AxiosError } from "axios";
+import { BookingMessagingService } from "../services/messagingService";
 import dotenv from 'dotenv';
 import path from 'path';
 
@@ -12,6 +13,11 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 const stripe = new Stripe(process.env.STRIPE_API_KEY as string);
 const BASE_URL =
     process.env.BASE_URL || "http://localhost:7000";
+
+const messagingService = new BookingMessagingService();
+
+// Initialize messaging service
+messagingService.initialize().catch(console.error);
 
 export const createPaymentIntent = async (req: Request, res: Response) => {
     try {
@@ -71,6 +77,7 @@ export const createBooking = async (req: Request, res: Response) => {
         const hotelId = req.headers["x-hotel-id"] as string;
         
         const { firstName, lastName, email, adultCount, childCount, checkIn, checkOut, paymentIntentId, totalCost } = req.body;
+        
         const booking = await Booking.create({
             userId,
             hotelId,
@@ -85,16 +92,40 @@ export const createBooking = async (req: Request, res: Response) => {
             totalCost,
         });
 
-        // Send booking confirmation email
+        // Fetch hotel details for the event
+        let hotelName = 'Unknown Hotel';
+        let hotelCity = 'Unknown City';
+        let hotelCountry = 'Unknown Country';
         try {
-            await axios.post(`${BASE_URL}/api/notifications/booking-confirmation`, {
-                booking: booking.toObject(),
-                userEmail: email
+            const hotelResponse = await axios.get(`${BASE_URL}/api/hotels/${hotelId}`);
+            hotelName = hotelResponse.data.name;
+            hotelCity = hotelResponse.data.city;
+            hotelCountry = hotelResponse.data.country;
+        } catch (error) {
+            console.warn('Failed to fetch hotel name for messaging:', error);
+        }
+
+        // Publish booking created event
+        try {
+            await messagingService.publishBookingCreated({
+                bookingId: booking._id.toString(),
+                userId,
+                hotelId,
+                userEmail: email,
+                hotelName,
+                hotelCity,
+                hotelCountry,
+                checkIn: new Date(checkIn),
+                checkOut: new Date(checkOut),
+                totalCost,
+                firstName,
+                lastName,
+                adultCount,
+                childCount
             });
-            console.log(`Booking confirmation email sent for booking ${booking._id}`);
-        } catch (emailError) {
-            // Don't fail the booking if email fails
-            console.error(`Failed to send booking confirmation email:`, emailError);
+        } catch (error) {
+            console.error('Failed to publish booking created event:', error);
+            // Don't fail the booking if messaging fails
         }
 
         res.status(201).json(booking);
