@@ -25,7 +25,9 @@
         "types",
         "shared",
         "microservices",
-        "hotel-booking"
+        "hotel-booking",
+        "rabbitmq",
+        "events"
     ],
     "author": "Tishan",
     "license": "MIT",

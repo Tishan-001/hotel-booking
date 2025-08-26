@@ -41,7 +41,9 @@
         "payments",
         "stripe",
         "microservice",
-        "mongoose"
+        "mongoose",
+        "rabbitmq",
+        "events"
     ],
     "author": "Tishan",
     "license": "MIT"

@@ -15,8 +15,9 @@
         "sourceMap": true,
         "composite": true,
         "incremental": true,
-        "tsBuildInfoFile": "./dist/.tsbuildinfo"
+        "tsBuildInfoFile": "./dist/.tsbuildinfo",
+        "types": ["node", "amqplib"]
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "src/messaging"],
     "exclude": ["node_modules", "dist", "**/*.test.ts"]
 }
