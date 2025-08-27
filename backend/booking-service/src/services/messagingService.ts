@@ -1,4 +1,4 @@
-import { getRabbitMQInstance } from 'shared-types/src/utils/rabbitmq';
+import { getRabbitMQInstance } from 'shared-types';
 import { BookingCreatedEvent, Message } from 'shared-types';
 import { v4 as uuidv4 } from 'uuid';
 

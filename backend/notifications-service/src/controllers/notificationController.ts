@@ -3,6 +3,10 @@
 import { Request, Response } from "express";
 import EmailService, { BookingEmailData } from "../services/emailService";
 import axios from "axios";
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const emailService = new EmailService();
 const BASE_URL = process.env.BASE_URL || "http://localhost:7000";

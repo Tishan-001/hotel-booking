@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { HotelType } from "../../../backend/src/shared/types"
+import { HotelType } from "../types/types"
 
 type Props = {
     hotel: HotelType

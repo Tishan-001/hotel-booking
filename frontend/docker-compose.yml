@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+        VITE_STRIPE_PUB_KEY: ${VITE_STRIPE_PUB_KEY}
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+    networks:
+      - hotel-network
+
+networks:
+  hotel-network:
+    external: true

@@ -1,11 +1,15 @@
 import * as amqp from 'amqplib';
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 export class RabbitMQConnection {
   private connection: amqp.ChannelModel | null = null;
   private channel: amqp.Channel | null = null;
   private url: string;
 
-  constructor(url: string = process.env.RABBITMQ_URL || 'amqp://localhost:5672') {
+  constructor(url: string = process.env.RABBITMQ_URL || 'amqp://admin:password123@localhost:5672') {
     this.url = url;
   }
 

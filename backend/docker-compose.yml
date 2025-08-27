@@ -1,0 +1,245 @@
+version: "3.9"
+
+services:
+  # Database Services
+  mongodb-users:
+    image: mongo:7
+    container_name: mongodb-users
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: users
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_users_data:/data/db
+    networks:
+      - hotel-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  mongodb-hotels:
+    image: mongo:7
+    container_name: mongodb-hotels
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: hotels
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_hotels_data:/data/db
+    networks:
+      - hotel-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  mongodb-bookings:
+    image: mongo:7
+    container_name: mongodb-bookings
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: bookings
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongodb_bookings_data:/data/db
+    networks:
+      - hotel-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_DEFAULT_VHOST}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - hotel-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 30s
+      retries: 10
+      start_period: 30s
+
+  # Microservices
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    restart: unless-stopped
+    ports:
+      - "7000:7000"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - API_GATEWAY_PORT=7000
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+      - USER_SERVICE_URL=${USER_SERVICE_URL}
+      - HOTEL_SERVICE_URL=${HOTEL_SERVICE_URL}
+      - BOOKING_SERVICE_URL=${BOOKING_SERVICE_URL}
+      - NOTIFICATIONS_SERVICE_URL=${NOTIFICATIONS_SERVICE_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - BASE_URL=${BASE_URL}
+    depends_on:
+      auth-service:
+        condition: service_started
+      user-service:
+        condition: service_started
+      hotel-service:
+        condition: service_started
+      booking-service:
+        condition: service_started
+      notifications-service:
+        condition: service_started
+    networks:
+      - hotel-network
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    container_name: auth-service
+    restart: unless-stopped
+    ports:
+      - "7001:7001"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - AUTH_SERVICE_PORT=7001
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - FRONTEND_URL=${FRONTEND_URL}
+    networks:
+      - hotel-network
+
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+    container_name: user-service
+    restart: unless-stopped
+    ports:
+      - "7002:7002"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - USER_SERVICE_PORT=7002
+      - MONGODB_CONNECTION_STRING_USERS=${MONGODB_CONNECTION_STRING_USERS}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+    depends_on:
+      mongodb-users:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hotel-network
+
+  hotel-service:
+    build:
+      context: .
+      dockerfile: hotel-service/Dockerfile
+    container_name: hotel-service
+    restart: unless-stopped
+    ports:
+      - "7003:7003"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - HOTEL_SERVICE_PORT=7003
+      - MONGODB_CONNECTION_STRING_HOTELS=${MONGODB_CONNECTION_STRING_HOTELS}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    depends_on:
+      mongodb-hotels:
+        condition: service_healthy
+    networks:
+      - hotel-network
+
+  booking-service:
+    build:
+      context: .
+      dockerfile: booking-service/Dockerfile
+    container_name: booking-service
+    restart: unless-stopped
+    ports:
+      - "7004:7004"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - BOOKING_SERVICE_PORT=7004
+      - MONGODB_CONNECTION_STRING_BOOKINGS=${MONGODB_CONNECTION_STRING_BOOKINGS}
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
+      - BASE_URL=${BASE_URL}
+      - RABBITMQ_URL=${RABBITMQ_URL}
+    depends_on:
+      mongodb-bookings:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hotel-network
+
+  notifications-service:
+    build:
+      context: .
+      dockerfile: notifications-service/Dockerfile
+    container_name: notifications-service
+    restart: unless-stopped
+    ports:
+      - "7005:7005"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - NOTIFICATIONS_SERVICE_PORT=7005
+      - RABBITMQ_URL=${RABBITMQ_URL}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_SECURE=${SMTP_SECURE}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - BASE_URL=${BASE_URL}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hotel-network
+
+volumes:
+  mongodb_users_data:
+    driver: local
+  mongodb_hotels_data:
+    driver: local
+  mongodb_bookings_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+
+networks:
+  hotel-network:
+    name: hotel-network
+    driver: bridge

@@ -1,39 +1,29 @@
 # api-gateway/Dockerfile
-FROM node:18-alpine AS shared-builder
-
-# Build shared types first
-WORKDIR /shared
-COPY shared-types/package*.json ./
-RUN npm ci
-COPY shared-types/ ./
-RUN npm run build
-
-# Main service build
-FROM node:18-alpine AS app-builder
-
-WORKDIR /app
-
-# Copy shared types build
-COPY --from=shared-builder /shared/dist /shared-types/dist
-COPY --from=shared-builder /shared/package.json /shared-types/
-
-# Copy service files
-COPY api-gateway/package*.json ./
-RUN npm ci --only=production
-
-COPY api-gateway/ ./
-RUN npm run build
-
-# Final runtime image
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy built application
-COPY --from=app-builder /app/dist ./dist
-COPY --from=app-builder /app/node_modules ./node_modules
-COPY --from=app-builder /app/package*.json ./
+# Copy root package.json
+COPY package.json package-lock.json* ./
+COPY tsconfig.json ./
 
+# Copy shared-types and api-gateway
+COPY shared-types ./shared-types
+COPY api-gateway ./api-gateway
+
+# Install dependencies
+RUN npm install --workspaces --if-present
+
+# Build shared-types
+WORKDIR /app/shared-types
+RUN npm run build
+
+# Build api-gateway
+WORKDIR /app/api-gateway
+RUN npm run build --workspace=api-gateway
+
+# Expose port
 EXPOSE 7000
 
+# Start service
 CMD ["npm", "start"]

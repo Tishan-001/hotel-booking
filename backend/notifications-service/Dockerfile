@@ -1,4 +1,4 @@
-# auth-service/Dockerfile
+# notifications-service/Dockerfile
 FROM node:18-alpine
 
 WORKDIR /app
@@ -7,9 +7,9 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 COPY tsconfig.json ./
 
-# Copy shared-types and auth-service
+# Copy shared-types and notifications-service
 COPY shared-types ./shared-types
-COPY auth-service ./auth-service
+COPY notifications-service ./notifications-service
 
 # Install dependencies
 RUN npm install --workspaces --if-present
@@ -18,12 +18,12 @@ RUN npm install --workspaces --if-present
 WORKDIR /app/shared-types
 RUN npm run build
 
-# Build auth-service
-WORKDIR /app/auth-service
-RUN npm run build --workspace=auth-service
+# Build notifications-service
+WORKDIR /app/notifications-service
+RUN npm run build --workspace=notifications-service
 
 # Expose port
-EXPOSE 7001
+EXPOSE 7005
 
 # Start service
 CMD ["npm", "start"]

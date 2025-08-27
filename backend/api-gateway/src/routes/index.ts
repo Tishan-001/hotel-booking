@@ -1,6 +1,10 @@
 import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import { verifyToken } from "../middleware/auth";
+import dotenv from 'dotenv';
+import path from 'path';
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || "http://localhost:7001";
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://localhost:7002";
@@ -145,7 +149,7 @@ router.use(
     createProxyMiddleware({
         target: HOTEL_SERVICE_URL,
         changeOrigin: true,
-        pathRewrite: { "^/api/my-hotels": "" },
+        pathRewrite: { "^/api/my-hotels": "/my" },
         onProxyReq: (proxyReq, req, res) => {
             console.log(`🏨 Proxying to Hotel Service (My Hotels): ${req.method} ${req.originalUrl}`);
 

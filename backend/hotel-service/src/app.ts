@@ -10,8 +10,8 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 const app = express();
 
 app.use(express.json());
-app.use("/", hotelRoutes);
 app.use("/my", myHotelsRoutes);
+app.use("/", hotelRoutes);
 
 // Connect to database
 mongoose

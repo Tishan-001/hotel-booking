@@ -15,7 +15,7 @@
         "sourceMap": true,
         "typeRoots": ["./node_modules/@types", "./src/types"],
         "allowSyntheticDefaultImports": true,
-        "types": ["node", "amqplib"]
+        "types": ["node"]
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules", "dist", "**/*.test.ts"]

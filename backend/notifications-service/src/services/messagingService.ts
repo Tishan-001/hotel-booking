@@ -1,4 +1,4 @@
-import { getRabbitMQInstance } from 'shared-types/src/utils/rabbitmq';
+import { getRabbitMQInstance } from 'shared-types';
 import { Message, BookingCreatedEvent } from 'shared-types';
 import EmailService from './emailService';
 
