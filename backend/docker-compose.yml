@@ -93,6 +93,7 @@ services:
     build:
       context: .
       dockerfile: api-gateway/Dockerfile
+    image: tishan001/hotel-booking:api-gateway-latest
     container_name: api-gateway
     restart: unless-stopped
     ports:
@@ -126,6 +127,7 @@ services:
     build:
       context: .
       dockerfile: auth-service/Dockerfile
+    image: tishan001/hotel-booking:auth-service-latest
     container_name: auth-service
     restart: unless-stopped
     ports:
@@ -142,6 +144,7 @@ services:
     build:
       context: .
       dockerfile: user-service/Dockerfile
+    image: tishan001/hotel-booking:user-service-latest
     container_name: user-service
     restart: unless-stopped
     ports:
@@ -165,6 +168,7 @@ services:
     build:
       context: .
       dockerfile: hotel-service/Dockerfile
+    image: tishan001/hotel-booking:hotel-service-latest
     container_name: hotel-service
     restart: unless-stopped
     ports:
@@ -186,6 +190,7 @@ services:
     build:
       context: .
       dockerfile: booking-service/Dockerfile
+    image: tishan001/hotel-booking:booking-service-latest
     container_name: booking-service
     restart: unless-stopped
     ports:
@@ -209,6 +214,7 @@ services:
     build:
       context: .
       dockerfile: notifications-service/Dockerfile
+    image: tishan001/hotel-booking:notifications-service-latest
     container_name: notifications-service
     restart: unless-stopped
     ports:

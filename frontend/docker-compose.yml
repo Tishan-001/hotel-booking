@@ -8,6 +8,7 @@ services:
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL}
         VITE_STRIPE_PUB_KEY: ${VITE_STRIPE_PUB_KEY}
+    image: tishan001/hotel-booking:frontend-latest
     ports:
       - "3000:3000"
     environment:
