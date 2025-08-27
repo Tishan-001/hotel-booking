@@ -120,7 +120,7 @@ BASE_URL=http://localhost:7000
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Tishan-001/hotel-booking.git
    cd hotel-booking-system
    ```
 
