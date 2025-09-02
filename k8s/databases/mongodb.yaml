@@ -53,7 +53,8 @@ spec:
           periodSeconds: 5
       volumes:
       - name: mongo-users-storage
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: mongo-users-pvc
 
 ---
 apiVersion: v1
@@ -65,7 +66,8 @@ spec:
   selector:
     app: mongo-users
   ports:
-  - port: 27017
+  - protocol : TCP
+    port: 27017
     targetPort: 27017
 
 ---
@@ -124,7 +126,8 @@ spec:
           periodSeconds: 5
       volumes:
       - name: mongo-hotels-storage
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: mongo-hotels-pvc
 
 ---
 apiVersion: v1
@@ -136,7 +139,8 @@ spec:
   selector:
     app: mongo-hotels
   ports:
-  - port: 27017
+  - protocol: TCP
+    port: 27017
     targetPort: 27017
 
 ---
@@ -195,7 +199,8 @@ spec:
           periodSeconds: 5
       volumes:
       - name: mongo-bookings-storage
-        emptyDir: {}
+        persistentVolumeClaim:
+          claimName: mongo-bookings-pvc
 
 ---
 apiVersion: v1
@@ -207,82 +212,6 @@ spec:
   selector:
     app: mongo-bookings
   ports:
-  - port: 27017
+  - protocol: TCP
+    port: 27017
     targetPort: 27017
-
----
-# RabbitMQ Deployment
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: rabbitmq
-  namespace: hotel-booking
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: rabbitmq
-  template:
-    metadata:
-      labels:
-        app: rabbitmq
-    spec:
-      containers:
-      - name: rabbitmq
-        image: rabbitmq:3.12-management
-        ports:
-        - containerPort: 5672
-        - containerPort: 15672
-        env:
-        - name: RABBITMQ_DEFAULT_USER
-          valueFrom:
-            secretKeyRef:
-              name: hotel-booking-secrets
-              key: RABBITMQ_USER
-        - name: RABBITMQ_DEFAULT_PASS
-          valueFrom:
-            secretKeyRef:
-              name: hotel-booking-secrets
-              key: RABBITMQ_PASS
-        - name: RABBITMQ_DEFAULT_VHOST
-          valueFrom:
-            configMapKeyRef:
-              name: hotel-booking-config
-              key: RABBITMQ_DEFAULT_VHOST
-        volumeMounts:
-        - name: rabbitmq-storage
-          mountPath: /var/lib/rabbitmq
-        livenessProbe:
-          exec:
-            command:
-            - rabbitmq-diagnostics
-            - check_port_connectivity
-          initialDelaySeconds: 60
-          periodSeconds: 30
-        readinessProbe:
-          exec:
-            command:
-            - rabbitmq-diagnostics
-            - check_port_connectivity
-          initialDelaySeconds: 20
-          periodSeconds: 10
-      volumes:
-      - name: rabbitmq-storage
-        emptyDir: {}
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: rabbitmq
-  namespace: hotel-booking
-spec:
-  selector:
-    app: rabbitmq
-  ports:
-  - name: amqp
-    port: 5672
-    targetPort: 5672
-  - name: management
-    port: 15672
-    targetPort: 15672

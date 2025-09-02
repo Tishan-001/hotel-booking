@@ -1,0 +1,41 @@
+# Booking Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: booking-service
+  namespace: hotel-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: booking-service
+  template:
+    metadata:
+      labels:
+        app: booking-service
+    spec:
+      containers:
+      - name: booking-service
+        image: tishan001/hotel-booking:booking-service-latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 7004
+        envFrom:
+        - configMapRef:
+            name: hotel-booking-config
+        - secretRef:
+            name: hotel-booking-secrets
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: booking-service
+  namespace: hotel-booking
+spec:
+  selector:
+    app: booking-service
+  ports:
+  - protocol: TCP
+    port: 7004
+    targetPort: 7004

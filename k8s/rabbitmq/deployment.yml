@@ -1,0 +1,63 @@
+# RabbitMQ Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: hotel-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3.12-management
+        ports:
+        - containerPort: 5672
+        - containerPort: 15672
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          valueFrom:
+            secretKeyRef:
+              name: hotel-booking-secrets
+              key: RABBITMQ_USER
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: hotel-booking-secrets
+              key: RABBITMQ_PASS
+        - name: RABBITMQ_DEFAULT_VHOST
+          valueFrom:
+            configMapKeyRef:
+              name: hotel-booking-config
+              key: RABBITMQ_DEFAULT_VHOST
+        volumeMounts:
+        - name: rabbitmq-storage
+          mountPath: /var/lib/rabbitmq
+      volumes:
+      - name: rabbitmq-storage
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: hotel-booking
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+  - protocol: TCP
+    name: amqp
+    port: 5672
+    targetPort: 5672
+  - protocol: TCP
+    name: management
+    port: 15672
+    targetPort: 15672

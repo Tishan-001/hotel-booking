@@ -1,0 +1,41 @@
+# Auth Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: hotel-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: tishan001/hotel-booking:auth-service-latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 7001
+        envFrom:
+        - configMapRef:
+            name: hotel-booking-config
+        - secretRef:
+            name: hotel-booking-secrets
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: hotel-booking
+spec:
+  selector:
+    app: auth-service
+  ports:
+  - protocol: TCP
+    port: 7001
+    targetPort: 7001
