@@ -1,0 +1,41 @@
+# Hotel Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hotel-service
+  namespace: hotel-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hotel-service
+  template:
+    metadata:
+      labels:
+        app: hotel-service
+    spec:
+      containers:
+      - name: hotel-service
+        image: tishan001/hotel-booking:hotel-service-latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 7003
+        envFrom:
+        - configMapRef:
+            name: hotel-booking-config
+        - secretRef:
+            name: hotel-booking-secrets
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hotel-service
+  namespace: hotel-booking
+spec:
+  selector:
+    app: hotel-service
+  ports:
+  - protocol: TCP
+    port: 7003
+    targetPort: 7003

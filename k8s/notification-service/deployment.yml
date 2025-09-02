@@ -1,0 +1,41 @@
+# Notifications Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifications-service
+  namespace: hotel-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notifications-service
+  template:
+    metadata:
+      labels:
+        app: notifications-service
+    spec:
+      containers:
+      - name: notifications-service
+        image: tishan001/hotel-booking:notifications-service-latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 7005
+        envFrom:
+        - configMapRef:
+            name: hotel-booking-config
+        - secretRef:
+            name: hotel-booking-secrets
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notifications-service
+  namespace: hotel-booking
+spec:
+  selector:
+    app: notifications-service
+  ports:
+  - protocol: TCP
+    port: 7005
+    targetPort: 7005

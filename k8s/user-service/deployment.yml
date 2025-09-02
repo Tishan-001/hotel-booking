@@ -1,0 +1,41 @@
+# User Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: hotel-booking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: tishan001/hotel-booking:user-service-latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 7002
+        envFrom:
+        - configMapRef:
+            name: hotel-booking-config
+        - secretRef:
+            name: hotel-booking-secrets
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: hotel-booking
+spec:
+  selector:
+    app: user-service
+  ports:
+  - protocol: TCP
+    port: 7002
+    targetPort: 7002
