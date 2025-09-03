@@ -34,7 +34,7 @@ jobs:
         context: ./frontend
         file: ./frontend/Dockerfile
         push: true
-        tags: tishan001/hotel-booking:frontend-latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking:frontend-latest
         build-args: |
           VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}
           VITE_STRIPE_PUB_KEY=${{ secrets.VITE_STRIPE_PUB_KEY }}
