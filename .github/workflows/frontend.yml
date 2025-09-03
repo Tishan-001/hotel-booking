@@ -5,7 +5,7 @@ on:
     branches: [ main, prod ]
     paths:
       - 'frontend/**'
-      - '.github/workflows/docker-frontend.yml'
+      - '.github/workflows/frontend.yml'
   pull_request:
     branches: [ prod ]
     paths:
