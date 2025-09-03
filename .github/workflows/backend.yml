@@ -5,7 +5,7 @@ on:
     branches: [ main, prod ]
     paths:
       - 'backend/**'
-      - '.github/workflows/docker-backend.yml'
+      - 'backend/docker-backend.yml'
   pull_request:
     branches: [ prod ]
     paths:
@@ -34,7 +34,7 @@ jobs:
         context: ./backend
         file: ./backend/api-gateway/Dockerfile
         push: true
-        tags: tishan001/hotel-booking:api-gateway-latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking:api-gateway-latest
         build-args: |
           NODE_ENV=production
           API_GATEWAY_PORT=7000
@@ -53,7 +53,7 @@ jobs:
         context: ./backend
         file: ./backend/auth-service/Dockerfile
         push: true
-        tags: tishan001/hotel-booking:auth-service-latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking:auth-service-latest
         build-args: |
           NODE_ENV=production
           AUTH_SERVICE_PORT=7001
@@ -66,7 +66,7 @@ jobs:
         context: ./backend
         file: ./backend/user-service/Dockerfile
         push: true
-        tags: tishan001/hotel-booking:user-service-latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking:user-service-latest
         build-args: |
           NODE_ENV=production
           USER_SERVICE_PORT=7002
@@ -81,7 +81,7 @@ jobs:
         context: ./backend
         file: ./backend/hotel-service/Dockerfile
         push: true
-        tags: tishan001/hotel-booking:hotel-service-latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking:hotel-service-latest
         build-args: |
           NODE_ENV=production
           HOTEL_SERVICE_PORT=7003
@@ -96,7 +96,7 @@ jobs:
         context: ./backend
         file: ./backend/booking-service/Dockerfile
         push: true
-        tags: tishan001/hotel-booking:booking-service-latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking:booking-service-latest
         build-args: |
           NODE_ENV=production
           BOOKING_SERVICE_PORT=7004
@@ -111,7 +111,7 @@ jobs:
         context: ./backend
         file: ./backend/notifications-service/Dockerfile
         push: true
-        tags: tishan001/hotel-booking:notifications-service-latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking:notifications-service-latest
         build-args: |
           NODE_ENV=production
           NOTIFICATIONS_SERVICE_PORT=7005
