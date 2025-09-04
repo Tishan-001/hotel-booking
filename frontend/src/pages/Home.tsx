@@ -5,8 +5,8 @@ import LatestDestinationCard from "../components/LatestDestinationCard"
 const Home = () => {
     const { data: hotels } = useQuery("fetchQuery", () => fetchHotels())
 
-    const topRowHotels = hotels?.slice(0, 2) || []
-    const bottomRowHotels = hotels?.slice(2) || []
+    const topRowHotels = Array.isArray(hotels) ? hotels.slice(0, 2) : []
+    const bottomRowHotels = Array.isArray(hotels) ? hotels.slice(2) : []
 
     return (
         <div className="space-y-3">
