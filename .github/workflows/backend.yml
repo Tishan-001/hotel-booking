@@ -2,7 +2,7 @@ name: Build and Push Backend Docker Images
 
 on:
   push:
-    branches: [ main, prod ]
+    branches: [ prod ]
     paths:
       - 'backend/**'
       - '.github/workflows/backend.yml'

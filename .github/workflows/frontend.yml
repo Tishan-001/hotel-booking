@@ -2,7 +2,7 @@ name: Build and Push Frontend Docker Image
 
 on:
   push:
-    branches: [ main, prod ]
+    branches: [ prod ]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend.yml'
