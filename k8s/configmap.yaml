@@ -10,7 +10,7 @@ data:
   HOTEL_SERVICE_URL: "http://hotel-service:7003"
   BOOKING_SERVICE_URL: "http://booking-service:7004"
   NOTIFICATIONS_SERVICE_URL: "http://notifications-service:7005"
-  BASE_URL: "http://localhost:7000"
+  BASE_URL: "http://api-gateway:7000"
   
   # Service Ports
   API_GATEWAY_PORT: "7000"
@@ -34,3 +34,6 @@ data:
   SMTP_HOST: "smtp.gmail.com"
   SMTP_PORT: "587"
   SMTP_SECURE: "false"
+
+  # Frontend Configs
+  VITE_API_BASE_URL: "http://localhost:7000"
