@@ -1,19 +1,18 @@
-import axios from "axios";
 import { RegisterFormData } from "./pages/Register";
 import { SignInFormData } from "./pages/SignIn";
 import {
-    BookingType,
-    HotelSearchResponse,
-    HotelType,
-    PaymentIntentResponse,
-    UserType,
+  BookingType,
+  HotelSearchResponse,
+  HotelType,
+  PaymentIntentResponse,
+  UserType,
 } from "./types/types";
 import { BookingFormData } from "./forms/BookingForm/BookingForm";
+import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
-// Create axios instance with default config
-const apiClient = axios.create({
+export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
@@ -21,133 +20,123 @@ const apiClient = axios.create({
   },
 });
 
+
 export const fetchCurrentUser = async (): Promise<UserType> => {
-    const response = await apiClient.get("/api/users/me");
-    return response.data;
+  const { data } = await apiClient.get("/api/users/me");
+  return data;
 };
 
 export const register = async (formData: RegisterFormData) => {
-    const response = await apiClient.post("/api/users/register", formData);
-    return response.data;
+  const { data } = await apiClient.post("/api/users/register", formData);
+  return data;
 };
 
 export const signIn = async (formData: SignInFormData) => {
-    const response = await apiClient.post("/api/users/login", formData);
-    return response.data;
+  const { data } = await apiClient.post("/api/users/login", formData);
+  return data;
 };
 
 export const validateToken = async () => {
-    const response = await apiClient.get("/api/auth/validate-token");
-    return response.data;
+  const { data } = await apiClient.get("/api/auth/validate-token");
+  return data;
 };
 
-export const singOut = async () => {
-    const response = await apiClient.post("/api/auth/logout");
-    return response.data;
+export const signOut = async () => {
+  await apiClient.post("/api/auth/logout");
 };
 
 export const addMyHotel = async (hotelFormData: FormData) => {
-    const response = await apiClient.post("/api/my-hotels", hotelFormData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-    });
-    return response.data;
+  const { data } = await apiClient.post("/api/my-hotels", hotelFormData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
 };
 
 export const fetchMyHotels = async (): Promise<HotelType[]> => {
-    const response = await apiClient.get("/api/my-hotels");
-    return response.data;
+  const { data } = await apiClient.get("/api/my-hotels");
+  return data;
 };
 
 export const fetchMyHotelById = async (hotelId: string): Promise<HotelType> => {
-    const response = await apiClient.get(`/api/my-hotels/${hotelId}`);
-    return response.data;
+  const { data } = await apiClient.get(`/api/my-hotels/${hotelId}`);
+  return data;
 };
 
 export const updateMyHotelById = async (hotelFormData: FormData) => {
-    const hotelId = hotelFormData.get("hotelId");
-    const response = await apiClient.put(`/api/my-hotels/${hotelId}`, hotelFormData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-    });
-    return response.data;
+  const { data } = await apiClient.put(
+    `/api/my-hotels/${hotelFormData.get("hotelId")}`,
+    hotelFormData,
+    { headers: { "Content-Type": "multipart/form-data" } }
+  );
+  return data;
 };
 
 export type SearchParamas = {
-    destination?: string;
-    checkIn?: string;
-    checkOut?: string;
-    adultCount?: string;
-    childCount?: string;
-    page?: string;
-    facilities?: string[];
-    types?: string[];
-    stars?: string[];
-    maxPrice?: string;
-    sortOption?: string;
+  destination?: string;
+  checkIn?: string;
+  checkOut?: string;
+  adultCount?: string;
+  childCount?: string;
+  page?: string;
+  facilities?: string[];
+  types?: string[];
+  stars?: string[];
+  maxPrice?: string;
+  sortOption?: string;
 };
 
 export const searchHotels = async (
-    searchParams: SearchParamas
+  searchParams: SearchParamas
 ): Promise<HotelSearchResponse> => {
-    const response = await apiClient.get("/api/hotels/search", {
-        params: searchParams,
-        paramsSerializer: { indexes: null }, // This handles array parameters correctly
-    });
-    return response.data;
+  const params = new URLSearchParams();
+
+  params.append("destination", searchParams.destination || "");
+  params.append("checkIn", searchParams.checkIn || "");
+  params.append("checkOut", searchParams.checkOut || "");
+  params.append("adultCount", searchParams.adultCount || "");
+  params.append("childCount", searchParams.childCount || "");
+  params.append("page", searchParams.page || "");
+  params.append("maxPrice", searchParams.maxPrice || "");
+  params.append("sortOption", searchParams.sortOption || "");
+
+  searchParams.facilities?.forEach((f) => params.append("facilities", f));
+  searchParams.types?.forEach((t) => params.append("types", t));
+  searchParams.stars?.forEach((s) => params.append("stars", s));
+
+  const { data } = await apiClient.get(`/api/hotels/search?${params.toString()}`);
+  return data;
 };
 
 export const fetchHotels = async (): Promise<HotelType[]> => {
-    const response = await apiClient.get("/api/hotels");
-    return response.data;
+  const { data } = await apiClient.get("/api/hotels");
+  return data;
 };
 
 export const fetchHotelById = async (hotelId: string): Promise<HotelType> => {
-    const response = await apiClient.get(`/api/hotels/${hotelId}`);
-    return response.data;
+  const { data } = await apiClient.get(`/api/hotels/${hotelId}`);
+  return data;
 };
 
 export const createPaymentIntent = async (
-    hotelId: string,
-    numberOfNights: string
+  hotelId: string,
+  numberOfNights: string
 ): Promise<PaymentIntentResponse> => {
-    const response = await apiClient.post(
-        `/api/hotels/${hotelId}/bookings/payment-intent`,
-        { numberOfNights }
-    );
-    return response.data;
+  const { data } = await apiClient.post(
+    `/api/hotels/${hotelId}/bookings/payment-intent`,
+    { numberOfNights }
+  );
+  return data;
 };
 
 export const createRoomBooking = async (formData: BookingFormData) => {
-    const response = await apiClient.post(
-        `/api/hotels/${formData.hotelId}/bookings`,
-        formData
-    );
-    return response.data;
+  const { data } = await apiClient.post(
+    `/api/hotels/${formData.hotelId}/bookings`,
+    formData
+  );
+  return data;
 };
 
 export const fetchMyBookings = async (): Promise<BookingType[]> => {
-    const response = await apiClient.get("/api/my-bookings");
-    return response.data;
+  const { data } = await apiClient.get("/api/my-bookings");
+  return data;
 };
-
-// Add error handling interceptor
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
-      const message = error.response.data?.message || "An error occurred";
-      throw new Error(message);
-    } else if (error.request) {
-      // The request was made but no response was received
-      throw new Error("Network error. Please check your connection.");
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      throw new Error(error.message);
-    }
-  }
-);
