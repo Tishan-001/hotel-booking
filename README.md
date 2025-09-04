@@ -208,17 +208,27 @@ BASE_URL=http://localhost:7000
 
 2. **Deploy infrastructure (MongoDB, RabbitMQ)**
    ```bash
-   kubectl apply -f k8s/mongodb.yaml
+   kubectl apply -f k8s/databases/mongodb.yaml
    ```
 
 3. **Deploy microservices**
    ```bash
-   kubectl apply -f k8s/microservices.yaml
+   kubectl apply -f k8s/api-gateway/deployment.yml
+
+   kubectl apply -f k8s/auth-service/deployment.yml
+
+   kubectl apply -f k8s/user-service/deployment.yml
+
+   kubectl apply -f k8s/hotel-service/deployment.yml
+
+   kubectl apply -f k8s/booking-service/deployment.yml
+
+   kubectl apply -f k8s/notifications-service/deployment.yml
    ```
 
 4. **Deploy frontend**
    ```bash
-   kubectl apply -f k8s/frontend.yml
+   kubectl apply -f k8s/frontend/deployment.yml
    ```
 
 5. **Check deployment status**

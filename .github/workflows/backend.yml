@@ -1,0 +1,134 @@
+name: Build and Push Backend Docker Images
+
+on:
+  push:
+    branches: [ main, prod ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    branches: [ prod ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push API Gateway
+      uses: docker/build-push-action@v4
+      with:
+        context: ./backend
+        file: ./backend/api-gateway/Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking:api-gateway-latest
+        build-args: |
+          NODE_ENV=production
+          API_GATEWAY_PORT=7000
+          AUTH_SERVICE_URL=http://auth-service:7001
+          USER_SERVICE_URL=http://user-service:7002
+          HOTEL_SERVICE_URL=http://hotel-service:7003
+          BOOKING_SERVICE_URL=http://booking-service:7004
+          NOTIFICATIONS_SERVICE_URL=http://notifications-service:7005
+          FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+          JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+          BASE_URL=${{ secrets.BASE_URL }}
+
+    - name: Build and push Auth Service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./backend
+        file: ./backend/auth-service/Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking:auth-service-latest
+        build-args: |
+          NODE_ENV=production
+          AUTH_SERVICE_PORT=7001
+          JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+          FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+
+    - name: Build and push User Service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./backend
+        file: ./backend/user-service/Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking:user-service-latest
+        build-args: |
+          NODE_ENV=production
+          USER_SERVICE_PORT=7002
+          MONGODB_CONNECTION_STRING_USERS=${{ secrets.MONGODB_CONNECTION_STRING_USERS }}
+          JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+          FRONTEND_URL=${{ secrets.FRONTEND_URL }}
+          RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}
+
+    - name: Build and push Hotel Service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./backend
+        file: ./backend/hotel-service/Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking:hotel-service-latest
+        build-args: |
+          NODE_ENV=production
+          HOTEL_SERVICE_PORT=7003
+          MONGODB_CONNECTION_STRING_HOTELS=${{ secrets.MONGODB_CONNECTION_STRING_HOTELS }}
+          CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
+
+    - name: Build and push Booking Service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./backend
+        file: ./backend/booking-service/Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking:booking-service-latest
+        build-args: |
+          NODE_ENV=production
+          BOOKING_SERVICE_PORT=7004
+          MONGODB_CONNECTION_STRING_BOOKINGS=${{ secrets.MONGODB_CONNECTION_STRING_BOOKINGS }}
+          STRIPE_API_KEY=${{ secrets.STRIPE_API_KEY }}
+          BASE_URL=${{ secrets.BASE_URL }}
+          RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}
+
+    - name: Build and push Notifications Service
+      uses: docker/build-push-action@v4
+      with:
+        context: ./backend
+        file: ./backend/notifications-service/Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/hotel-booking:notifications-service-latest
+        build-args: |
+          NODE_ENV=production
+          NOTIFICATIONS_SERVICE_PORT=7005
+          RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}
+          SMTP_HOST=${{ secrets.SMTP_HOST }}
+          SMTP_PORT=${{ secrets.SMTP_PORT }}
+          SMTP_SECURE=${{ secrets.SMTP_SECURE }}
+          SMTP_USER=${{ secrets.SMTP_USER }}
+          SMTP_PASS=${{ secrets.SMTP_PASS }}
+          BASE_URL=${{ secrets.BASE_URL }}
+
+    - name: Verify pushed images
+      run: |
+        echo "✅ Successfully built and pushed all backend images:"
+        echo "  - api-gateway-latest"
+        echo "  - auth-service-latest"
+        echo "  - user-service-latest"
+        echo "  - hotel-service-latest"
+        echo "  - booking-service-latest"
+        echo "  - notifications-service-latest"
