@@ -1,274 +1,288 @@
-# Hotel Booking System 🏨
+# Hotel Booking System - Microservices Architecture
 
-A full-stack microservices-based hotel booking application built with React, Node.js, Express, MongoDB, and deployed on Kubernetes.
+A comprehensive hotel booking platform built with microservices architecture, featuring user management, hotel listings, booking system, and email notifications.
 
 ## 🏗️ Architecture Overview
 
 This application follows a microservices architecture with the following components:
 
-### Backend Services
-- **API Gateway** (Port 7000) - Routes requests to appropriate microservices
-- **Auth Service** (Port 7001) - Handles authentication and token validation
-- **User Service** (Port 7002) - Manages user registration, login, and profiles
-- **Hotel Service** (Port 7003) - Manages hotel data, search, and listings
-- **Booking Service** (Port 7004) - Handles booking creation and management
-- **Notifications Service** (Port 7005) - Sends email notifications
+- **API Gateway** (Port 7000) - Central entry point routing requests to appropriate services
+- **Auth Service** (Port 7001) - JWT token validation and authentication
+- **User Service** (Port 7002) - User registration, login, and profile management  
+- **Hotel Service** (Port 7003) - Hotel CRUD operations and search functionality
+- **Booking Service** (Port 7004) - Stripe payment integration and booking management
+- **Notifications Service** (Port 7005) - Email notifications via RabbitMQ messaging
+- **Frontend** (Port 3000) - React.js web application with TypeScript
 
-### Frontend
-- **React Application** (Port 3000) - User interface built with React, TypeScript, and Tailwind CSS
-
-### Infrastructure
+### Supporting Infrastructure
 - **MongoDB** - Separate databases for users, hotels, and bookings
-- **RabbitMQ** - Message queue for inter-service communication
-- **Stripe** - Payment processing
+- **RabbitMQ** - Message queue for asynchronous communication
 - **Cloudinary** - Image storage and management
+- **Stripe** - Payment processing
 
-## 🚀 Features
+## 🚀 Quick Start
 
-- **User Authentication** - JWT-based authentication with secure sessions
-- **Hotel Management** - Create, update, and manage hotel listings
-- **Advanced Search** - Filter hotels by location, price, facilities, and ratings
-- **Booking System** - Complete booking workflow with payment integration
-- **Email Notifications** - Automated booking confirmation emails
-- **Responsive Design** - Mobile-friendly interface
-- **Image Upload** - Hotel image management with Cloudinary
-- **Real-time Messaging** - Event-driven communication between services
-
-## 🛠️ Technology Stack
-
-### Frontend
-- React 18 with TypeScript
-- Tailwind CSS for styling
-- React Query for state management
-- React Router for navigation
-- Stripe for payments
-- React DatePicker
-
-### Backend
-- Node.js & Express
-- TypeScript
-- MongoDB with Mongoose
-- JWT authentication
-- Stripe payment processing
-- RabbitMQ messaging
-- Nodemailer for emails
-- Cloudinary for image storage
-
-### DevOps & Deployment
-- Docker containerization
-- Kubernetes orchestration
-- Microservices architecture
-
-## 📋 Prerequisites
-
-- Node.js 18+
+### Prerequisites
 - Docker and Docker Compose
-- Kubernetes cluster (for production deployment)
-- MongoDB
-- RabbitMQ
+- Node.js 18+ (for local development)
+- Kubernetes cluster (for K8s deployment)
+- Minikube (for local Kubernetes testing)
 
-## 🔧 Environment Variables
+### Option 1: Docker Compose (Recommended)
 
-Create a `.env` file in the backend directory with the following variables:
+1. **Clone the repository**
+```bash
+git clone https://github.com/Tishan-001/hotel-booking.git
+cd hotel-booking-system
+```
+
+2. **Set up environment variables**
+```bash
+cp .env.example .env
+# Edit .env with your API keys (Stripe, Cloudinary, SMTP credentials)
+```
+
+3. **Start all services**
+```bash
+docker-compose up --build
+```
+
+4. **Access the application**
+- Frontend: http://localhost:3000
+- API Gateway: http://localhost:7000
+- RabbitMQ Management: http://localhost:15672
+
+### Option 2: Kubernetes Deployment
+
+#### For Production Kubernetes Cluster
+
+1. **Create namespace and secrets**
+```bash
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/secrets.yaml
+kubectl apply -f k8s/configmap.yaml
+```
+
+2. **Deploy databases**
+```bash
+kubectl apply -f k8s/databases/
+```
+
+3. **Deploy services**
+```bash
+kubectl apply -f k8s/auth-service/
+kubectl apply -f k8s/user-service/
+kubectl apply -f k8s/hotel-service/
+kubectl apply -f k8s/booking-service/
+kubectl apply -f k8s/notifications-service/
+kubectl apply -f k8s/api-gateway/
+kubectl apply -f k8s/rabbitmq/
+kubectl apply -f k8s/frontend/
+```
+
+4. **Get external IPs**
+```bash
+kubectl get services -n hotel-booking
+```
+
+#### For Minikube Testing
+
+We provide automated deployment scripts for Minikube testing:
+
+**Windows:**
+```batch
+# Deploy the entire application
+deploy.bat deploy
+
+# Check deployment status
+deploy.bat status
+
+# Set up port forwarding for local access
+deploy.bat port-forward
+
+# Clean up all resources
+deploy.bat cleanup
+
+# Get application URLs
+deploy.bat urls
+```
+
+**Linux/Mac:**
+```bash
+# Deploy the entire application
+./deploy.sh deploy
+
+# Check deployment status
+./deploy.sh status
+
+# Set up port forwarding for local access
+./deploy.sh port-forward
+
+# Clean up all resources
+./deploy.sh cleanup
+
+# Get application URLs
+./deploy.sh urls
+```
+
+The deployment script will:
+- Start Minikube if not running
+- Enable necessary addons
+- Deploy all services in correct order
+- Wait for all components to be ready
+- Provide access URLs
+
+**Access URLs after deployment:**
+- Frontend: `http://[MINIKUBE_IP]:[FRONTEND_PORT]`
+- API Gateway: `http://[MINIKUBE_IP]:[API_GATEWAY_PORT]`
+- RabbitMQ Management: `http://[MINIKUBE_IP]:[RABBITMQ_PORT]`
+
+### Option 3: Local Development
+
+1. **Install dependencies for each service**
+```bash
+# Backend services
+cd backend/api-gateway && npm install
+cd ../auth-service && npm install
+cd ../user-service && npm install
+cd ../hotel-service && npm install
+cd ../booking-service && npm install
+cd ../notifications-service && npm install
+
+# Frontend
+cd ../../frontend && npm install
+```
+
+2. **Start infrastructure services**
+```bash
+docker-compose up mongodb rabbitmq
+```
+
+3. **Start each service in separate terminals**
+```bash
+# Terminal 1 - API Gateway
+cd backend/api-gateway && npm run dev
+
+# Terminal 2 - Auth Service  
+cd backend/auth-service && npm run dev
+
+# Terminal 3 - User Service
+cd backend/user-service && npm run dev
+
+# Terminal 4 - Hotel Service
+cd backend/hotel-service && npm run dev
+
+# Terminal 5 - Booking Service
+cd backend/booking-service && npm run dev
+
+# Terminal 6 - Notifications Service
+cd backend/notifications-service && npm run dev
+
+# Terminal 7 - Frontend
+cd frontend && npm run dev
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
 
 ```env
-# Service Configuration
-API_GATEWAY_PORT=7000
-AUTH_SERVICE_PORT=7001
-USER_SERVICE_PORT=7002
-HOTEL_SERVICE_PORT=7003
-BOOKING_SERVICE_PORT=7004
-NOTIFICATIONS_SERVICE_PORT=7005
+# Database URLs
+MONGODB_CONNECTION_STRING_USERS=mongodb://admin:password123@localhost:27017/users?authSource=admin
+MONGODB_CONNECTION_STRING_HOTELS=mongodb://admin:password123@localhost:27017/hotels?authSource=admin
+MONGODB_CONNECTION_STRING_BOOKINGS=mongodb://admin:password123@localhost:27017/bookings?authSource=admin
 
-# Database Connections
-MONGODB_CONNECTION_STRING_USERS=mongodb://admin:password123@mongo-users:27017/users?authSource=admin
-MONGODB_CONNECTION_STRING_HOTELS=mongodb://admin:password123@mongo-hotels:27017/hotels?authSource=admin
-MONGODB_CONNECTION_STRING_BOOKINGS=mongodb://admin:password123@mongo-bookings:27017/bookings?authSource=admin
+# JWT Secret
+JWT_SECRET_KEY=your-super-secret-jwt-key
 
-# Authentication
-JWT_SECRET_KEY=your_jwt_secret_key_here
+# Service URLs
+AUTH_SERVICE_URL=http://localhost:7001
+USER_SERVICE_URL=http://localhost:7002
+HOTEL_SERVICE_URL=http://localhost:7003
+BOOKING_SERVICE_URL=http://localhost:7004
+NOTIFICATIONS_SERVICE_URL=http://localhost:7005
+BASE_URL=http://localhost:7000
 
-# External Services
+# Frontend
+FRONTEND_URL=http://localhost:3000
+VITE_API_BASE_URL=http://localhost:7000
+
+# Stripe (Test Keys)
 STRIPE_API_KEY=sk_test_your_stripe_secret_key
-VITE_STRIPE_PUB_KEY=pk_test_your_stripe_public_key
+STRIPE_PUB_KEY=pk_test_your_stripe_publishable_key
+VITE_STRIPE_PUB_KEY=pk_test_your_stripe_publishable_key
 
 # Cloudinary
-CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-CLOUDINARY_API_KEY=your_cloudinary_api_key
-CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 
-# Email Configuration
+# SMTP (Gmail example)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_SECURE=false
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
 
 # RabbitMQ
-RABBITMQ_URL=amqp://admin:password123@rabbitmq:5672
+RABBITMQ_URL=amqp://admin:password123@localhost:5672
 RABBITMQ_USER=admin
 RABBITMQ_PASS=password123
-
-# Application URLs
-FRONTEND_URL=http://localhost:3000
-BASE_URL=http://localhost:7000
 ```
 
-## 🚀 Getting Started
+## 🧪 Testing the Application
 
-### Local Development
+### Core Features to Test
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Tishan-001/hotel-booking.git
-   cd hotel-booking-system
-   ```
+1. **User Registration & Login**
+   - Navigate to http://localhost:3000
+   - Register a new account
+   - Login with credentials
 
-2. **Install dependencies for all services**
-   ```bash
-   # Backend services
-   cd backend
-   npm install --workspaces
+2. **Hotel Management**
+   - Login and go to "My Hotels"
+   - Add a new hotel with images
+   - Edit existing hotels
 
-   # Frontend
-   cd ../frontend
-   npm install
-   ```
+3. **Hotel Search & Booking**
+   - Use search bar to find hotels
+   - Filter by location, price, facilities
+   - Make a test booking with Stripe test card: `4242 4242 4242 4242`
 
-3. **Set up environment variables**
-   ```bash
-   cp backend/.env.example backend/.env
-   # Edit the .env file with your configuration
-   ```
+4. **Email Notifications**
+   - Complete a booking
+   - Check email for booking confirmation
 
-4. **Start MongoDB and RabbitMQ (using Docker)**
-   ```bash
-   docker run -d --name mongodb -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password123 mongo:7
-   docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 -e RABBITMQ_DEFAULT_USER=admin -e RABBITMQ_DEFAULT_PASS=password123 rabbitmq:3.12-management
-   ```
+5. **View Bookings**
+   - Go to "My Bookings" to see reservation history
 
-5. **Start all services**
-   ```bash
-   # Terminal 1 - API Gateway
-   cd backend/api-gateway
-   npm run dev
+### Test Accounts (Available after sample data setup)
+- **User**: john.doe@example.com / password123
+- **Hotel Owner**: hotel.owner@example.com / password123
 
-   # Terminal 2 - Auth Service
-   cd backend/auth-service
-   npm run dev
+### Test Payment Cards
+- **Success**: 4242 4242 4242 4242
+- **Decline**: 4000 0000 0000 0002
+- **Authentication Required**: 4000 0025 0000 3155
 
-   # Terminal 3 - User Service
-   cd backend/user-service
-   npm run dev
+## 🏗️ System Architecture & Database Schema
+![System Architecture & Database Schema ](./images/system_architecture_&_database_schema.png)
 
-   # Terminal 4 - Hotel Service
-   cd backend/hotel-service
-   npm run dev
-
-   # Terminal 5 - Booking Service
-   cd backend/booking-service
-   npm run dev
-
-   # Terminal 6 - Notifications Service
-   cd backend/notifications-service
-   npm run dev
-
-   # Terminal 7 - Frontend
-   cd frontend
-   npm run dev
-   ```
-
-6. **Access the application**
-   - Frontend: http://localhost:3000
-   - API Gateway: http://localhost:7000
-   - RabbitMQ Management: http://localhost:15672 (admin/password123)
-
-### Docker Deployment
-
-1. **Build Docker images**
-   ```bash
-   # Build all service images
-   docker build -t hotel-booking:api-gateway ./backend/api-gateway
-   docker build -t hotel-booking:auth-service ./backend/auth-service
-   docker build -t hotel-booking:user-service ./backend/user-service
-   docker build -t hotel-booking:hotel-service ./backend/hotel-service
-   docker build -t hotel-booking:booking-service ./backend/booking-service
-   docker build -t hotel-booking:notifications-service ./backend/notifications-service
-   docker build -t hotel-booking:frontend ./frontend
-   ```
-
-### Kubernetes Deployment
-
-1. **Create namespace and secrets**
-   ```bash
-   kubectl apply -f k8s/namespace.yaml
-   kubectl apply -f k8s/secrets.yaml
-   kubectl apply -f k8s/configmap.yaml
-   ```
-
-2. **Deploy infrastructure (MongoDB, RabbitMQ)**
-   ```bash
-   kubectl apply -f k8s/databases/mongodb.yaml
-   ```
-
-3. **Deploy microservices**
-   ```bash
-   kubectl apply -f k8s/api-gateway/deployment.yml
-
-   kubectl apply -f k8s/auth-service/deployment.yml
-
-   kubectl apply -f k8s/user-service/deployment.yml
-
-   kubectl apply -f k8s/hotel-service/deployment.yml
-
-   kubectl apply -f k8s/booking-service/deployment.yml
-
-   kubectl apply -f k8s/notifications-service/deployment.yml
-   ```
-
-4. **Deploy frontend**
-   ```bash
-   kubectl apply -f k8s/frontend/deployment.yml
-   ```
-
-5. **Check deployment status**
-   ```bash
-   kubectl get pods -n hotel-booking
-   kubectl get services -n hotel-booking
-   ```
-
-## 📁 Project Structure
-
-```
-hotel-booking-system/
-├── backend/
-│   ├── api-gateway/          # API Gateway service
-│   ├── auth-service/         # Authentication service
-│   ├── user-service/         # User management service
-│   ├── hotel-service/        # Hotel management service
-│   ├── booking-service/      # Booking management service
-│   ├── notifications-service/ # Email notification service
-│   └── shared-types/         # Shared TypeScript types
-├── frontend/                 # React frontend application
-└── k8s/                     # Kubernetes deployment files
-```
-
-## 🔗 API Endpoints
+## 🎯 API Endpoints
 
 ### Authentication
-- `POST /api/auth/validate-token` - Validate JWT token
-- `POST /api/auth/logout` - Logout user
-
-### Users
-- `POST /api/users/register` - Register new user
+- `POST /api/users/register` - User registration
 - `POST /api/users/login` - User login
-- `GET /api/users/me` - Get current user profile
+- `GET /api/users/me` - Get current user
+- `POST /api/auth/logout` - Logout user
 
 ### Hotels
 - `GET /api/hotels` - Get all hotels
 - `GET /api/hotels/search` - Search hotels with filters
 - `GET /api/hotels/:id` - Get hotel by ID
-- `POST /api/my-hotels` - Create new hotel (authenticated)
+- `POST /api/my-hotels` - Create hotel (authenticated)
 - `GET /api/my-hotels` - Get user's hotels (authenticated)
 - `PUT /api/my-hotels/:id` - Update hotel (authenticated)
 
@@ -277,38 +291,153 @@ hotel-booking-system/
 - `POST /api/hotels/:hotelId/bookings` - Create booking
 - `GET /api/my-bookings` - Get user's bookings (authenticated)
 
-### Notifications
-- `POST /api/notifications/booking-confirmation` - Send booking confirmation email
-- `GET /api/notifications/test-connection` - Test email service
+## 🔍 Health Checks
 
-## 🔐 Authentication Flow
+- API Gateway: http://localhost:7000/health
+- Notifications Service: http://localhost:7005/notifications/test-connection
 
-1. User registers/logs in through the frontend
-2. User service validates credentials and returns JWT token
-3. Token is stored in HTTP-only cookies
-4. API Gateway validates tokens for protected routes
-5. User ID is passed to downstream services via headers
+## 🐳 Docker Images
 
-## 📬 Messaging System
+Pre-built images are available on Docker Hub:
+- `tishan001/hotel-booking:frontend-latest`
+- `tishan001/hotel-booking:api-gateway-latest`
+- `tishan001/hotel-booking:auth-service-latest`
+- `tishan001/hotel-booking:user-service-latest`
+- `tishan001/hotel-booking:hotel-service-latest`
+- `tishan001/hotel-booking:booking-service-latest`
+- `tishan001/hotel-booking:notifications-service-latest`
 
-The application uses RabbitMQ for asynchronous communication:
+## 🛠️ Development
 
-- **Booking Created Events** - When a booking is created, an event is published
-- **Email Notifications** - Notifications service consumes booking events and sends confirmation emails
+### Tech Stack
+- **Backend**: Node.js, Express.js, TypeScript
+- **Frontend**: React.js, TypeScript, Tailwind CSS
+- **Databases**: MongoDB
+- **Message Queue**: RabbitMQ
+- **Payment**: Stripe
+- **File Upload**: Cloudinary
+- **Orchestration**: Docker, Kubernetes
 
-## 🎨 Frontend Features
+### Project Structure
+```
+hotel-booking-system/
+├── backend/
+│   ├── api-gateway/
+│   ├── auth-service/
+│   ├── user-service/
+│   ├── hotel-service/
+│   ├── booking-service/
+│   └── notifications-service/
+├── frontend/
+├── k8s/
+├── shared-types/
+├── docker-compose.yml
+├── deploy.sh / deploy.bat
+└── README.md
+```
 
-- **Responsive Design** - Works on desktop and mobile devices
-- **Hotel Search** - Advanced filtering by location, price, facilities
-- **Image Gallery** - Hotel image carousel
-- **Payment Integration** - Stripe payment processing
-- **Form Validation** - Client and server-side validation
-- **Toast Notifications** - User feedback for actions
-- **Protected Routes** - Authentication-based route protection
+## 🔧 Minikube Deployment Details
 
-## 📊 Monitoring
+The automated deployment scripts handle the complete deployment process:
 
-- **Health Checks** - Each service exposes health endpoints
-- **Kubernetes Probes** - Liveness and readiness probes configured
-- **RabbitMQ Management** - Queue monitoring via management UI
-- **Application Logs** - Structured logging across all services
+### Deployment Process
+1. **Infrastructure Setup**
+   - Checks and starts Minikube if needed
+   - Enables required addons (ingress, dashboard, metrics-server)
+   - Creates namespace and applies configurations
+
+2. **Database Deployment**
+   - Deploys Persistent Volume Claims
+   - Deploys MongoDB instances for users, hotels, and bookings
+   - Waits for databases to be ready
+
+3. **Message Queue**
+   - Deploys RabbitMQ with management interface
+   - Configures proper credentials and access
+
+4. **Microservices Deployment**
+   - Deploys all backend services in correct order
+   - Waits for each service to be healthy
+   - Configures service-to-service communication
+
+5. **Frontend Deployment**
+   - Deploys React frontend with proper API configuration
+   - Exposes service through NodePort
+
+### Useful Minikube Commands
+```bash
+# View Kubernetes dashboard
+minikube dashboard
+
+# Establishes a network route on the host machine
+minikube tunnel
+
+# Check pod status
+kubectl get pods -n hotel-booking
+
+# View service logs
+kubectl logs -f deployment/api-gateway -n hotel-booking
+
+# Check resource usage
+kubectl top pods -n hotel-booking
+
+# Port forward for local access
+kubectl port-forward service/frontend 3000:3000 -n hotel-booking
+kubectl port-forward service/api-gateway 7000:7000 -n hotel-booking
+```
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+1. **Port conflicts**: Make sure ports 3000, 7000-7005, 5672, 15672, 27017 are available
+2. **Environment variables**: Verify all required env vars are set correctly
+3. **MongoDB connection**: Ensure MongoDB containers are running and healthy
+4. **RabbitMQ**: Check RabbitMQ is accessible at the configured URL
+5. **Stripe**: Use test API keys for development
+6. **Minikube**: Ensure Minikube has sufficient resources (4GB RAM minimum)
+
+### Logs
+```bash
+# Docker Compose
+docker-compose logs [service-name]
+
+# Kubernetes
+kubectl logs -f deployment/[service-name] -n hotel-booking
+
+# Minikube
+minikube logs
+```
+
+### Minikube Troubleshooting
+```bash
+# Restart Minikube
+minikube stop
+minikube start
+
+# Check Minikube status
+minikube status
+
+# Get Minikube IP
+minikube ip
+
+# SSH into Minikube
+minikube ssh
+```
+
+---
+
+## 🎯 Quick Start Summary
+
+**For immediate testing:**
+1. Ensure Docker, Kubernetes, and Minikube are installed
+2. Clone the repository
+3. Run `./deploy.sh deploy` (Linux/Mac) or `deploy.bat deploy` (Windows)
+4. Run `minikube tunnel`
+5. Access the application at the provided URLs
+6. Use test accounts and Stripe test cards for testing
+
+**For development:**
+1. Use Docker Compose for local development: `docker-compose up --build`
+2. Access at http://localhost:3000
+3. Use provided test accounts for immediate access
