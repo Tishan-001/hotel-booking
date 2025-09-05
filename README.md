@@ -327,11 +327,11 @@ hotel-booking-system/
 │   ├── user-service/
 │   ├── hotel-service/
 │   ├── booking-service/
-│   └── notifications-service/
+│   ├── notifications-service/
+│   ├── shared-types/
+│   └── docker-compose.yml
 ├── frontend/
 ├── k8s/
-├── shared-types/
-├── docker-compose.yml
 ├── deploy.sh / deploy.bat
 └── README.md
 ```
