@@ -30,7 +30,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: hotel-booking-config
-              key: BASE_URL
+              key: VITE_API_BASE_URL
         - name: VITE_STRIPE_PUB_KEY
           valueFrom:
             secretKeyRef:
