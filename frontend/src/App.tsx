@@ -1,5 +1,4 @@
 import {
-    Navigate,
     Route,
     BrowserRouter as Router,
     Routes,
@@ -16,6 +15,7 @@ import Details from "./pages/Details";
 import Booking from "./pages/Booking";
 import MyBookings from "./pages/MyBookings";
 import Home from "./pages/Home";
+import NotFound from "./pages/NotFound";
 
 const App = () => {
     const { isLoggedIn } = useAppContext();
@@ -108,7 +108,11 @@ const App = () => {
                     </>
                 )}
 
-                <Route path="*" element={<Navigate to="/" />} />
+                <Route path="*" element={
+                    <Layout>
+                        <NotFound />
+                    </Layout>
+                } />
             </Routes>
         </Router>
     );

@@ -1,3 +1,115 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Base styles */
+body {
+    @apply font-sans bg-slate-50 text-slate-900 antialiased;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-slate-100;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400;
+}
+
+/* React DatePicker Custom Styles */
+.react-datepicker {
+    @apply border border-slate-200 rounded-xl shadow-lg font-sans !important;
+}
+
+.react-datepicker__header {
+    @apply bg-gradient-to-r from-blue-600 to-indigo-600 border-b-0 rounded-t-xl !important;
+}
+
+.react-datepicker__current-month {
+    @apply text-white font-semibold text-lg py-2 !important;
+}
+
+.react-datepicker__day-name {
+    @apply text-blue-100 font-medium !important;
+}
+
+.react-datepicker__day {
+    @apply rounded-lg hover:bg-blue-100 transition-colors duration-200 !important;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range {
+    @apply bg-blue-600 text-white hover:bg-blue-700 !important;
+}
+
+.react-datepicker__day--keyboard-selected {
+    @apply bg-blue-200 text-blue-800 !important;
+}
+
+.react-datepicker__day--today {
+    @apply font-bold border-2 border-blue-400 !important;
+}
+
+.react-datepicker__day--disabled {
+    @apply text-slate-300 hover:bg-transparent cursor-not-allowed !important;
+}
+
+.react-datepicker__navigation {
+    @apply top-3 !important;
+}
+
+.react-datepicker__navigation-icon::before {
+    @apply border-white !important;
+}
+
+.react-datepicker__navigation:hover *::before {
+    @apply border-blue-200 !important;
+}
+
+.react-datepicker__triangle {
+    display: none !important;
+}
+
+.react-datepicker__input-container input {
+    @apply w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 !important;
+}
+
+.react-datepicker__input-container input::placeholder {
+    @apply text-slate-400 !important;
+}
+
+/* Animation delay utilities */
+.delay-100 {
+    animation-delay: 100ms;
+}
+
+.delay-200 {
+    animation-delay: 200ms;
+}
+
+.delay-300 {
+    animation-delay: 300ms;
+}
+
+/* Focus visible styles for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+}
+
+/* Selection color */
+::selection {
+    @apply bg-blue-600 text-white;
+}

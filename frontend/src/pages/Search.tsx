@@ -8,6 +8,7 @@ import StarRatingFilter from "../components/StarRatingFilter";
 import TypeFilter from "../components/TypeFilter";
 import FacilityFilter from "../components/FacilityFilter";
 import PriceFilter from "../components/PriceFilter";
+import { SearchResultSkeleton } from "../components/Skeleton";
 
 const Search = () => {
     const search = useSearchContext()
@@ -32,7 +33,7 @@ const Search = () => {
         sortOption
     }
 
-    const { data: hotelData } = useQuery(['searchHotels', searchParams], () => searchHotels(searchParams))
+    const { data: hotelData, isLoading } = useQuery(['searchHotels', searchParams], () => searchHotels(searchParams))
 
     const handleStarsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const starRating = event.target.value
@@ -62,40 +63,69 @@ const Search = () => {
     }
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-5">
-            <div className="rounded-lg border border-slate-300 p-5 h-fit sticky top-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 animate-fade-in">
+            {/* Filters Sidebar */}
+            <div className="rounded-xl border border-slate-200 p-5 h-fit sticky top-10 bg-white shadow-sm">
                 <div className="space-y-5">
-                    <h3 className="text-lg font-semibold border-b border-slate-300 pb-5">Filter By:</h3>
+                    <h3 className="text-lg font-bold text-slate-800 border-b border-slate-200 pb-4">Filter By</h3>
                     <StarRatingFilter selectedStars={selectedStars} onChange={handleStarsChange} />
                     <TypeFilter selectedTypes={selectedTypes} onChange={handleTypesChange} />
                     <FacilityFilter selectedFacilities={selectedFacilities} onChange={handleFacilitiesChange} />
                     <PriceFilter selectedPrice={selectedPrice} onChange={(value?: number) => setSelectedPrice(value)} />
                 </div>
             </div>
+
+            {/* Results Section */}
             <div className="flex flex-col gap-5">
-                <div className="flex justify-between items-center">
-                    <span className="text-xl font-bold">
-                        {hotelData?.pagination.total} Hotels Found
-                        {search.destination ? ` in ${search.destination}` : ""}
+                <div className="flex justify-between items-center bg-white p-4 rounded-lg border border-slate-200">
+                    <span className="text-xl font-bold text-slate-800">
+                        {isLoading ? (
+                            <span className="animate-pulse">Searching...</span>
+                        ) : (
+                            <>
+                                {hotelData?.pagination.total || 0} Hotels Found
+                                {search.destination && <span className="text-blue-600"> in {search.destination}</span>}
+                            </>
+                        )}
                     </span>
-                    <select value={sortOption}
+                    <select
+                        value={sortOption}
                         onChange={event => setSortOption(event.target.value)}
-                        className="p-2 border rounded-md">
+                        className="p-2 border border-slate-200 rounded-lg bg-white hover:border-blue-400 transition-colors duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
                         <option value="">Sort By</option>
                         <option value="starRating">Star Rating</option>
-                        <option value="pricePerNightAsc">Price Per Night (Low To Hight)</option>
-                        <option value="pricePerNightDesc">Price Per Night (Hight To Low)</option>
+                        <option value="pricePerNightAsc">Price Per Night (Low To High)</option>
+                        <option value="pricePerNightDesc">Price Per Night (High To Low)</option>
                     </select>
                 </div>
-                {hotelData?.data.map((hotel, index) => (
-                    <SearchResultCard key={index} hotel={hotel} />
-                ))}
-                <div>
-                    <Pagination
-                        page={hotelData?.pagination.page || 1}
-                        pages={hotelData?.pagination.pages || 1}
-                        onPageChange={(page) => setPage(page)} />
-                </div>
+
+                {isLoading ? (
+                    <div className="flex flex-col gap-5">
+                        <SearchResultSkeleton />
+                        <SearchResultSkeleton />
+                        <SearchResultSkeleton />
+                    </div>
+                ) : hotelData?.data.length === 0 ? (
+                    <div className="text-center py-16 bg-white rounded-xl border border-slate-200">
+                        <p className="text-slate-500 text-lg">No hotels found matching your criteria.</p>
+                        <p className="text-slate-400 mt-2">Try adjusting your filters or search terms.</p>
+                    </div>
+                ) : (
+                    hotelData?.data.map((hotel, index) => (
+                        <SearchResultCard key={hotel._id || index} hotel={hotel} />
+                    ))
+                )}
+
+                {!isLoading && hotelData && hotelData.data.length > 0 && (
+                    <div className="mt-4">
+                        <Pagination
+                            page={hotelData?.pagination.page || 1}
+                            pages={hotelData?.pagination.pages || 1}
+                            onPageChange={(page) => setPage(page)}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     )
